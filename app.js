@@ -6,7 +6,7 @@ const dbConfig = require("./app/config/db.config");
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:8080"
+  origin: "http://localhost:8081"
 };
 
 app.use(cors(corsOptions));
@@ -26,17 +26,17 @@ db.mongoose
     useUnifiedTopology: true
   })
   .then(() => {
-    console.log("Successfully connect to MongoDB.");
+    //console.log("Successfully connect to MongoDB.");
     initial();
   })
   .catch(err => {
-    console.error("Connection error", err);
+    //console.error("Connection error", err);
     process.exit();
   });
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to prakerja." });
+  res.json({ message: "Welcome to Saiki - Bonsai Nusantara." });
 });
 
 // routes
@@ -49,7 +49,7 @@ require("./app/routes/social/comments-replies.routes")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+  //console.log(`Server is running on port ${PORT}.`);
 });
 
 function initial() {
@@ -59,30 +59,27 @@ function initial() {
         name: "user"
       }).save(err => {
         if (err) {
-          console.log("error", err);
+          //console.log("error", err);
         }
-
-        console.log("added 'user' to roles collection");
+        //console.log("added 'user' to roles collection");
       });
 
       new Role({
         name: "admin"
       }).save(err => {
         if (err) {
-          console.log("error", err);
+          //console.log("error", err);
         }
-
-        console.log("added 'admin' to roles collection");
+        //console.log("added 'admin' to roles collection");
       });
 
       new Role({
         name: "superadmin"
       }).save(err => {
         if (err) {
-          console.log("error", err);
+          //console.log("error", err);
         }
-
-        console.log("added 'superadmin' to roles collection");
+        //console.log("added 'superadmin' to roles collection");
       });
     }
   });

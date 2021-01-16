@@ -1,49 +1,88 @@
 const db = require("../../models");
 const Qr = db.status;
+const multer = require('multer');
+const path = require('path');
+const helpers = require('../helpers');
+const fs = require('fs');
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        var dir = './saiki/images/'+req.userId;
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+        cb(null, 'saiki/images/'+req.userId);
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
 
 exports.create = (req, res) => {
-  if (res.status(200)) {
-    if (!req.body.status) {
-      res.status(400).send({ message: "Content can not be empty!" });
-      return;
+  let upload = multer({ storage: storage, fileFilter: helpers.imageFilter }).array('img', 10);
+  
+  upload(req, res, function(err) {
+    if (req.fileValidationError) {
+      //return res.send(req.fileValidationError);
+    } else if (!req.file) {
+      //return res.send('Please select an image to upload');
+    } else if (err instanceof multer.MulterError) {
+      //return res.send(err);
+    } else if (err) {
+      //return res.send(err);
     }
 
-const express = require('express');
-const multer = require('multer');
-const upload = multer({dest: __dirname + '/uploads/images'});
+    const files = req.files;
+    let index, len;
+    let photo1 = '';
+    let photo2 = '';
+    let photo3 = '';
+    let photo4 = '';
+    let photo5 = '';
+    let photo6 = '';
+    let photo7 = '';
+    let photo8 = '';
+    let photo9 = '';
+    let photo10 = '';
 
-const app = express();
-const PORT = 3000;
-
-app.use(express.static('public'));
-
-app.post('/upload', upload.single('photo'), (req, res) => {
-    if(req.file) {
-        res.json(req.file);
+    for (index = 0, len = files.length; index < len; ++index) {
+      if (index == 0) { photo1 += files[index].path; }
+      if (index == 1) { photo2 += files[index].path; }
+      if (index == 2) { photo3 += files[index].path; }
+      if (index == 3) { photo4 += files[index].path; }
+      if (index == 4) { photo5 += files[index].path; }
+      if (index == 5) { photo6 += files[index].path; }
+      if (index == 6) { photo7 += files[index].path; }
+      if (index == 7) { photo8 += files[index].path; }
+      if (index == 8) { photo9 += files[index].path; }
+      if (index == 9) { photo10 += files[index].path; }
     }
-    else throw 'error';
-});
-
-app.listen(PORT, () => {
-    console.log('Listening at ' + PORT );
-});
 
     const createNew = new Qr({
       user_id: req.userId,
-      status: req.body.status,
-      published: req.body.published ? req.body.published : true,
+      status: req.status,
+      photo1: photo1,
+      photo2: photo2,
+      photo3: photo3,
+      photo4: photo4,
+      photo5: photo5,
+      photo6: photo6,
+      photo7: photo7,
+      photo8: photo8,
+      photo9: photo9,
+      photo10: photo10,
+      published: req.published ? req.published : true,
       deleted: false
     });
 
-    createNew
-    .save(createNew)
-    .then(data => {
+    createNew.save(createNew).then(data => {
       res.send(data);
-    })
-    .catch(err => {
+    }).catch(err => {
       res.status(500).send({ message: err.message || "Some error occurred while creating the data." });
     });
-  }
+
+  });
+  
 };
 
 exports.findAll = (req, res) => {
