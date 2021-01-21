@@ -1,10 +1,12 @@
 const db = require("../../models");
 const Qr = db.status;
 const multer = require('multer');
+const sharp = require('sharp');
 const path = require('path');
 const helpers = require('../helpers');
 const fs = require('fs');
 
+/*
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         var dir = './saiki/images/'+req.userId;
@@ -17,8 +19,59 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
+*/
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'saiki');
+    },
+    filename: (req, file, cb) => {
+        console.log(file);
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype == 'image/jpeg' || file.mimetype == 'image/png') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+}
+const upload = multer({ storage: storage, fileFilter: fileFilter }).array('img', 10);
+//const upload = multer({ storage: storage, fileFilter: helpers.imageFilter }).array('img', 10);
+
+
 
 exports.create = (req, res) => {
+
+  upload(req, res, function(err) {
+    if (req.fileValidationError) {
+      //return res.send(req.fileValidationError);
+    } else if (!req.file) {
+      //return res.send('Please select an image to upload');
+    } else if (err instanceof multer.MulterError) {
+      //return res.send(err);
+    } else if (err) {
+      //return res.send(err);
+    }
+
+    try {
+        sharp(req.files.path).resize(200, 200).toFile('saiki/' + 'img-' + req.files.originalname, (err, resizeImage) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(resizeImage);
+            }
+        })
+        return res.status(201).json({
+            message: 'File uploded successfully'
+        });
+    } catch (error) {
+        console.error(error);
+    }
+
+  });
+  /*
   let upload = multer({ storage: storage, fileFilter: helpers.imageFilter }).array('img', 10);
   
   upload(req, res, function(err) {
@@ -60,7 +113,7 @@ exports.create = (req, res) => {
 
     const createNew = new Qr({
       user_id: req.userId,
-      status: req.status,
+      status: req.body.status,
       photo1: photo1,
       photo2: photo2,
       photo3: photo3,
@@ -71,7 +124,7 @@ exports.create = (req, res) => {
       photo8: photo8,
       photo9: photo9,
       photo10: photo10,
-      published: req.published ? req.published : true,
+      published: req.body.published ? req.body.published : true,
       deleted: false
     });
 
@@ -82,7 +135,7 @@ exports.create = (req, res) => {
     });
 
   });
-  
+  */
 };
 
 exports.findAll = (req, res) => {

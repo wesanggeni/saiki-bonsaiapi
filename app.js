@@ -6,16 +6,15 @@ const dbConfig = require("./app/config/db.config");
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "http://localhost:3000"
 };
 
 app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
-app.use(bodyParser.json());
-
+app.use(bodyParser.json({ limit: '50mb' }));
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 const db = require("./app/models");
 const Role = db.role;
@@ -47,7 +46,7 @@ require("./app/routes/social/comments.routes")(app);
 require("./app/routes/social/comments-replies.routes")(app);
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   //console.log(`Server is running on port ${PORT}.`);
 });
