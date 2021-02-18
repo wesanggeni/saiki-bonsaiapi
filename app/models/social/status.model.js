@@ -3,7 +3,11 @@ const mainConfig = require("../../config/main.config");
 
 function getUrl(images) {
   if (images != '') {
-    return mainConfig.baseUrl+images;
+    let rets = {
+      large : mainConfig.baseUrl+'saiki/images/'+this.user_id+'/large/'+images,
+      medium : mainConfig.baseUrl+'saiki/images/'+this.user_id+'/medium/'+images,
+    }
+    return rets;
   } else {
     return '';
   }
@@ -61,9 +65,6 @@ var thisSchema = new mongoose.Schema({
 thisSchema.set('toObject', { getters: true });
 thisSchema.set('toJSON', { getters: true });
 
-const Status = mongoose.model(
-  "Status",
-  thisSchema
-);
+const Status = mongoose.model("Status", thisSchema);
 
 module.exports = Status;

@@ -1,18 +1,40 @@
 const mongoose = require("mongoose");
+const mainConfig = require("../config/main.config");
 
-const User = mongoose.model(
-  "User",
-  new mongoose.Schema({
-    username: String,
+function getUrl(images) {
+  if (images != '') {
+    return mainConfig.baseUrl+'saiki/images/'+this._id+'/'+images;
+  } else {
+    return '';
+  }
+}
+
+function getUsername(username) {
+  return username.toLowerCase().replace(/(?<= )[^\s]|^./g, a=>a.toUpperCase());
+}
+
+var thisSchema = new mongoose.Schema({
+    username: {
+      type: String,
+      get: getUsername
+    },
     email: String,
     password: String,
+    avatar: {
+      type: String,
+      get: getUrl
+    },
     roles: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Role"
       }
     ]
-  })
-);
+  });
+
+const User = mongoose.model("User", thisSchema);
+
+thisSchema.set('toObject', { getters: true });
+thisSchema.set('toJSON', { getters: true });
 
 module.exports = User;

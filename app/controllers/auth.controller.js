@@ -2,15 +2,20 @@ const config = require("../config/auth.config");
 const db = require("../models");
 const User = db.user;
 const Role = db.role;
+const fs = require('fs');
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-exports.signup = (req, res) => {
+const { save } =  require('no-avatar');
+
+exports.signup = async (req, res) => {
+
   const user = new User({
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
+    password: bcrypt.hashSync(req.body.password, 8),
+    avatar: 'avatar.png',
   });
 
   user.save((err, user) => {
@@ -37,7 +42,26 @@ exports.signup = (req, res) => {
               return;
             }
 
-            res.send({ message: "User was registered successfully!" });
+            /* avatar */
+            var dir = './saiki/images/'+user._id;
+            if (!fs.existsSync(dir)){
+                fs.mkdirSync(dir);
+            }
+            const savePath = dir+'/avatar.png';
+            const options = {
+              width: 100,
+              height: 100,
+              text: req.body.username,
+              fontSize: 14,
+            };
+
+            save(savePath, options, function(err){
+              //if(err) return console.log(err);
+                //return console.log('avatar.png saved at path ' + savePath);
+            });
+            /* avatar */
+
+            res.send({ message: "User was registered successfullys!"+user._id });
           });
         }
       );
@@ -55,7 +79,7 @@ exports.signup = (req, res) => {
             return;
           }
 
-          res.send({ message: "User was registered successfully!" });
+          res.send({ message: "User was registered successfully!"+user._id });
         });
       });
     }
@@ -102,8 +126,9 @@ exports.signin = (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        avatar: user.avatar,
         roles: authorities,
-        accessToken: token
+        token: token
       });
     });
 };
